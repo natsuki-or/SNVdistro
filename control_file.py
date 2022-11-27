@@ -2,10 +2,7 @@
 please edit the parameters below according to  your environment
 '''
 
-#location of files
-
-#functions_loc = "/work13/natsuki/python"
-
+#location of database files
 database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
             "ClinVar": "/db/ClinVar/clinvar.vcf", \
             "dbSNP": "/db/dbSNP/GCF_000001405.39", \
@@ -37,21 +34,19 @@ database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
                         "Y": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.Y.fa", \
                         "MT": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.MT.fa", }}
 
+#location of hash table to be stored
 hashtb_loc = {"ClinVar": "/db/ClinVar/ClinVar.hashtb", \
             "dbSNP": "/db/dbSNP/dbSNP.hashtb", \
             "gnomAD": "/db/gnomAD3.1.2/TABLE/", \
             "COSMIC": "/work13/natsuki/hashtb/COSMIC.hashtb"}
 
-
-
-
+#location of separate functions
 getuniprot_loc = ""
 pdbblast_loc = ""
 getpdbsw = ""
 
 #This parameter changes the amount of incliments when forming hash table of the database(bin, jump window).
-#e.g. if set to 10000, it will store the bite location
-
+#e.g. if set to 100,000, it will store the bite location of mutations at every 100,000 residues
 hashtb_DIV = {"ClinVar": 100000, \
             "dbSNP": 100000, \
             "gnomAD": 50000}
