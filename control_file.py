@@ -42,30 +42,7 @@ hashtb_loc = {"ClinVar": "/db/ClinVar/ClinVar.hashtb", \
             "gnomAD": "/db/gnomAD3.1.2/TABLE/", \
             "COSMIC": "/work13/natsuki/hashtb/COSMIC.hashtb"}
 
-"""
-for GRCh38 and gnomAD, which the user may store them differently, how should I locate them?
-e.g. in our cluster, GRCh38 fasta file are stored as:
-        Homo_sapiens.GRCh38.dna.chromosome.1.fa
-        Homo_sapiens.GRCh38.dna.chromosome.2.fa
-        Homo_sapiens.GRCh38.dna.chromosome.3.fa
-    etc...
-        Homo_sapiens.GRCh38.dna.chromosome.X.fa
-        Homo_sapiens.GRCh38.dna.chromosome.Y.fa
-        Homo_sapiens.GRCh38.dna.chromosome.MT.fa
-    so I can access them by chromosome by
-        "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome."+str(C_num)+".fa"
 
-    but if in another place it was stored like
-        Homo_sapiens.GRCh38.dna.chromosome.01.fa
-        Homo_sapiens.GRCh38.dna.chromosome.02.fa
-        Homo_sapiens.GRCh38.dna.chromosome.03.fa (to stop chr10 coming before chr2)
-    or if it was not separated by chromosome
-    or if it was separated by chromosome but in different folder
-    etc...
-    I wouldn't be able to access it and not sure how I could accommodate for that.
-    maybe make an alias folders?
-
-"""
 
 
 getuniprot_loc = ""
