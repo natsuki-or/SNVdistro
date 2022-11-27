@@ -74,6 +74,7 @@ getpdbsw = ""
 
 #This parameter changes the amount of incliments when forming hash table of the database(bin, jump window).
 #e.g. if set to 10000, it will store the bite location
-ClinVar_hashtb_DIV = 100000
-dbSNP_hashtb_DIV = 100000
-gnomAD_hashtb_DIV = 50000
+
+hashtb_DIV = {"ClinVar": 100000, \
+            "dbSNP": 100000, \
+            "gnomAD": 50000}
