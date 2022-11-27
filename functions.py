@@ -60,7 +60,7 @@ def ClinVar_snv(C_num, g_start, g_stop):
     chr = []
     nt = []
     pt = []
-    with open ("/db/ClinVar/ClinVar.hashtb","r") as f:
+    with open (hashtb_loc["ClinVar"],"r") as f:
         for line in f:
             tmp = line.strip().split()
             chr.append(tmp[0])
@@ -73,10 +73,10 @@ def ClinVar_snv(C_num, g_start, g_stop):
     lines_t=[]
     for i in range(total):
         if t_chr == chr[i]:
-            if nt[i]+100000 > st:
+            if nt[i]+hashtb_DIV["ClinVar"] > st:
                 pointer = pt[i]
                 break
-    with open("/db/ClinVar/clinvar.vcf","r") as f:
+    with open(database_loc["ClinVar"],"r") as f:
         f.seek(pointer)
         for line in f:
             if not str(line.split()[0]) == t_chr:
@@ -118,7 +118,7 @@ def dbSNP(C_num, g_start, g_stop):
     chr = []
     nt = []
     pt = []
-    with open ("/db/dbSNP/dbSNP.hashtb","r") as f:
+    with open (hashtb_loc["dbSNP"],"r") as f:
         for line in f:
             tmp = line.strip().split()
             chr.append(tmp[0])
@@ -131,10 +131,10 @@ def dbSNP(C_num, g_start, g_stop):
     lines_t=[]
     for k in range(total):
         if t_chr == chr[k]:
-            if nt[k]+100000 > st:
+            if nt[k]+hashtb_DIV["dbSNP"] > st:
                 pointer = pt[k]
                 break
-    with open("/db/dbSNP/GCF_000001405.39","r") as f:
+    with open(database_loc["dbSNP"],"r") as f:
         f.seek(pointer)
         for line in f:
             if not str(line.split()[0]) == t_chr:
@@ -172,7 +172,7 @@ def gnomAD_snv(C_num, g_start, g_stop):
     gnomAD_snv.logger = logging.getLogger("SNVdistro.mod.gnomAD_snv")
     nt = []
     pt = []
-    with open ("/db/gnomAD3.1.2/TABLE/gnomAD.chr"+str(C_num)+".hashtb","r") as f:
+    with open (hashtb_loc["gnomAD"]+"gnomAD.chr"+str(C_num)+".hashtb","r") as f:
         for line in f:
             tmp = line.strip().split()
             nt.append(int(tmp[0]))
@@ -182,10 +182,10 @@ def gnomAD_snv(C_num, g_start, g_stop):
     fn    = int(g_stop)
     lines_t=[]
     for i in range(total):
-        if nt[i]+1000000 > st:
+        if nt[i]+hashtb_DIV["gnomAD"] > st:
             pointer = pt[i]
             break
-    with open("/db/gnomAD3.1.2/gnomad.genomes.v3.1.2.sites.chr"+str(C_num)+".vcf","r") as f:
+    with open(database_loc["gnomAD"]+"gnomad.genomes.v3.1.2.sites.chr"+str(C_num)+".vcf","r") as f:
         f.seek(pointer)
         for line in f:
             if int(line.split()[1]) > fn:
