@@ -56,12 +56,27 @@ g_start = CCDS[0]["Start"].min()
 g_stop = CCDS[0]["Stop"].max()
 
 #extract SNVs from databases based on the location data from CCDS
-logger.debug("searching ClinVar")
-ClinVar = ClinVar_snv(C_num, g_start, g_stop)
-logger.debug("searching dbSNP")
-dbSNP = dbSNP(C_num, g_start, g_stop)
-logger.debug("searching gnomAD")
-gnomAD = gnomAD_snv(C_num, g_start, g_stop)
+if database_to_use["ClinVar"]:
+    logger.debug("searching ClinVar")
+    ClinVar = ClinVar_snv(C_num, g_start, g_stop)
+else:
+    logger.debug("ClinVar was not searched")
+    ClinVar = pd.DataFrame(columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'CLNSIG'])
+
+if database_to_use["dbSNP"]:
+    logger.debug("searching dbSNP")
+    dbSNP = dbSNP(C_num, g_start, g_stop)
+else:
+    logger.debug("dbSNP was not searched")
+    dbSNP = pd.DataFrame(columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'CLNSIG'])
+
+if database_to_use["gnomAD"]:
+    logger.debug("searching gnomAD")
+    gnomAD = gnomAD_snv(C_num, g_start, g_stop)
+else:
+    logger.debug("gnomAD was not searched")
+    gnomAD = pd.DataFrame(columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'CLNSIG'])
+
 
 #combine the data and remove duplicates
 SNV = pd.concat([ClinVar, dbSNP, gnomAD])

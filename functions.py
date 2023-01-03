@@ -14,7 +14,6 @@ module_logger = logging.getLogger("SNVdistro.mod")
 
 
 def CCDS(gene):
-    #import pandas as pd
     CCDS.logger = logging.getLogger("SNVdistro.mod.CCDS")
     doc = pd.read_table(database_loc["CCDS"])
     doc = doc.loc[doc['gene'].str.casefold() == gene.casefold()]
@@ -42,7 +41,6 @@ def CCDS(gene):
     g_stop = int(df["Stop"].max())
     df["rn_len"] = df["Stop"].astype(int)-df["Start"].astype(int)+1
     df["rn_len"] = df["rn_len"].cumsum()
-    #from Bio import SeqIO
     for Chr in SeqIO.parse(database_loc["GRCh38"][str(C_num)], "fasta"):
         id_part = Chr.id
         desc_part = Chr.description
@@ -52,10 +50,6 @@ def CCDS(gene):
 
 
 def ClinVar_snv(C_num, g_start, g_stop):
-    #from sys import *
-    #import pandas as pd
-    #pd.options.mode.chained_assignment = None
-    #import re
     ClinVar_snv.logger = logging.getLogger("SNVdistro.mod.ClinVar_snv")
     chr = []
     nt = []
@@ -146,7 +140,7 @@ def dbSNP(C_num, g_start, g_stop):
                 lines_t.append(re.sub('\s+',' ',line))
     v = pd.DataFrame(lines_t)
     if v.empty:
-        ClinVar.logger.warning("No varient found on dbSNP")
+        dbSNP.logger.warning("No varient found on dbSNP")
         cols = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'CLNSIG']
         g_snv = pd.DataFrame(columns=cols)
         return g_snv
@@ -195,7 +189,7 @@ def gnomAD_snv(C_num, g_start, g_stop):
                 lines_t.append(re.sub('\s+',' ',line))
     v = pd.DataFrame(lines_t)
     if v.empty:
-        ClinVar.logger.warning("No varient found on gnomAD")
+        gnomAD_snv.logger.warning("No varient found on gnomAD")
         cols = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'CLNSIG']
         g_snv = pd.DataFrame(columns=cols)
         return g_snv

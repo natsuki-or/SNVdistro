@@ -34,7 +34,18 @@ database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
                         "Y": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.Y.fa", \
                         "MT": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.MT.fa", }}
 
-#location of hash table to be stored
+#a way to select the database
+database_to_use = { "ClinVar": False, \
+                    "dbSNP": True, \
+                    "gnomAD": True}
+
+
+#maybe a way of putting a weight of clinical significance in ClinVar
+#perhaps it might be better to add output file location on here?
+
+
+#location of hash table to be stored  <= is this necessary? I could preset the program
+#to store it under where hashtb.py file is...
 hashtb_loc = {"ClinVar": "/db/ClinVar/ClinVar.hashtb", \
             "dbSNP": "/db/dbSNP/dbSNP.hashtb", \
             "gnomAD": "/db/gnomAD3.1.2/TABLE/", \
@@ -45,7 +56,7 @@ getuniprot_loc = ""
 pdbblast_loc = ""
 getpdbsw = ""
 
-#This parameter changes the amount of incliments when forming hash table of the database(bin, jump window).
+#This parameter changes the amount of incliments when forming hash table of the database (bin/ jump window).
 #e.g. if set to 100,000, it will store the bite location of mutations at every 100,000 residues
 hashtb_DIV = {"ClinVar": 100000, \
             "dbSNP": 100000, \
