@@ -13,7 +13,7 @@ import time
 
 ###########argparse#############
 parser = argparse.ArgumentParser(description='searches databases for SNV of a gene')
-parser.add_argument('uniprot_name', type=str, help='gene to search')
+parser.add_argument('uniprot_name', type=str, help='name of gene to search')
 parser.add_argument('res_loc', type=str, help='where you want the output to be saved')
 diagram = parser.add_subparsers(title="diagram", dest='diagram', help='select type of diagram')
 
@@ -28,7 +28,7 @@ args = parser.parse_args()
 ###############################
 
 #make a folder to put all outputs in
-res_loc = args.res_loc+"/"+args.gene_name+time.strftime("%Y%m%d_%H%M%S")
+res_loc = args.res_loc+"/"+args.uniprot_name+time.strftime("%Y%m%d_%H%M%S")
 os.makedirs(res_loc)
 
 ###########logging#############
@@ -42,7 +42,7 @@ stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
 #log file
-file_handler = logging.FileHandler(res_loc+'/'+args.gene_name+'.log')
+file_handler = logging.FileHandler(res_loc+'/'+args.uniprot_name+'.log')
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
@@ -106,7 +106,7 @@ logger.debug(exsnv)
 #make a histogram
 if args.diagram == "2d":
     diagram2d(exsnv,int(CCDS[0]["rn_len"].max()/3))
-    plt.savefig(res_loc+"/"+args.gene_name+".png")
+    plt.savefig(res_loc+"/"+args.uniprot_name+".png")
 
 
 #heatmap of frequency of variation in each amino acid
