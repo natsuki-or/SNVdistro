@@ -88,17 +88,24 @@ SNV['POS'] = SNV['POS'].astype(int)
 SNV = SNV.sort_values(by=['POS'])
 SNV = SNV.reset_index(drop=True)
 
+clnsig_included = [key for key, value in clnsig_to_include.items() if value]
+SNV_used = SNV[SNV['CLNSIG'].isin(clnsig_included)]
+if "NaN" in clnsig_included:
+    SNV_used = pd.concat([SNV_used, SNV[SNV['CLNSIG'].isnull()]])
+
+SNV_used = SNV_used.sort_values(by=['POS'])
+SNV_used = SNV_used.reset_index(drop=True)
 
 #workout nuclotide residue number and original/ mutated codon/amino acid
 logger.debug("working out amino acid")
-SNV = mut_amino(CCDS[0],SNV,g_start, g_stop,CCDS[1])
+SNV_used = mut_amino(CCDS[0],SNV_used,g_start, g_stop,CCDS[1])
 
 #make a label
-SNV['p_POS'] = np.ceil(SNV['nrn']/3).astype(int)
-SNV['label']="p."+SNV["RefAminoAcid"].astype(str)+SNV["p_POS"].astype(str)+SNV["AltAminoAcid"].astype(str)
+SNV_used['p_POS'] = np.ceil(SNV_used['nrn']/3).astype(int)
+SNV_used['label']="p."+SNV_used["RefAminoAcid"].astype(str)+SNV_used["p_POS"].astype(str)+SNV_used["AltAminoAcid"].astype(str)
 
 #extract SNV in exon
-exsnv = SNV[SNV["exon_intron"]=="exon"]
+exsnv = SNV_used[SNV_used["exon_intron"]=="exon"]
 exsnv = exsnv.reset_index(drop=True)
 logger.debug("SNVs in exon")
 logger.debug(exsnv)

@@ -34,11 +34,19 @@ database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
                         "Y": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.Y.fa", \
                         "MT": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.MT.fa", }}
 
-#a way to select the database
+#select the database
 database_to_use = { "ClinVar": False, \
                     "dbSNP": True, \
                     "gnomAD": True}
 
+#select what clinical significnace to be included
+clnsig_to_include = {"Benign": True, \
+                    "Likely_benign": True, \
+                    "Uncertain_significance": True, \
+                    "Likely_pathogenic": False, \
+                    "Pathogenic": False, \
+                    "NaN" : True, \
+                    "Conflicting_interpretations_of_pathogenicity": False,}
 
 #maybe a way of putting a weight of clinical significance in ClinVar
 #perhaps it might be better to add output file location on here?
