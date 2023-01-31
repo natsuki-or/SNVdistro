@@ -9,23 +9,34 @@ pd.options.mode.chained_assignment = None
 import re
 from Bio import SeqIO
 from Bio.Seq import MutableSeq
+import subprocess as sp
 import logging
 module_logger = logging.getLogger("SNVdistro.mod")
 
+def Up_CCDS_ID(uniprot_name):
+    Up_CCDS_ID.logger = logging.getLogger("SNVdistro.mod.Up_CCDS_ID")
+    cmd1 = ['getuniprot', '-s', uniprot_name]
+    p = sp.Popen(cmd1, stdout=sp.PIPE)
+    output = p.stdout.read().decode('utf-8')
+    list_uniprot = output.split("\n")
+    ccds_id_loc = [n for n, l in enumerate(list_uniprot) if l.startswith('DR   CCDS;')]
+    ccds_id = re.findall('; (.*);', list_uniprot[ccds_id_loc[0]])
+    return ccds_id
 
-def CCDS(gene):
+
+def CCDS(CCDS_ID):
     CCDS.logger = logging.getLogger("SNVdistro.mod.CCDS")
-    doc = pd.read_table(database_loc["CCDS"])
-    doc = doc.loc[doc['gene'].str.casefold() == gene.casefold()]
-    if len(doc) == 0:
+    CCDS_doc = pd.read_table(database_loc["CCDS"])
+    CCDS_gene = CCDS_doc.loc[CCDS_doc['ccds_id'] == CCDS_ID[0]]
+    if len(CCDS_gene) == 0:
         CCDS.logger.error("gene not found in CCDS")
         exit()
-    doc = doc.reset_index(drop=True)
-    C_num = doc.iat[0,0]
-    nc = doc.iat[0,1]
-    strand = doc.iat[0,6]
+    CCDS_gene = CCDS_gene.reset_index(drop=True)
+    C_num = CCDS_gene.iat[0,0]
+    nc = CCDS_gene.iat[0,1]
+    strand = CCDS_gene.iat[0,6]
     #
-    exsome_loc = doc["cds_locations"].str.extract('\[(.+)\]')
+    exsome_loc = CCDS_gene["cds_locations"].str.extract('\[(.+)\]')
     exsome_loc = exsome_loc.iat[0,0].split(", ")
     #
     list = [[''for i in range(5)] for j in range(len(exsome_loc))]
@@ -381,7 +392,7 @@ def rgb(minimum, maximum, value):
 
 def diagram3d(upname,res_loc,exsnv,pdb_code):
     from scipy import stats
-    import subprocess as sp
+    #import subprocess as sp
     # import pandas as pd
     # import numpy as np
     from pymol import cmd

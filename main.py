@@ -13,7 +13,7 @@ import time
 
 ###########argparse#############
 parser = argparse.ArgumentParser(description='searches databases for SNV of a gene')
-parser.add_argument('gene_name', type=str, help='gene to search')
+parser.add_argument('uniprot_name', type=str, help='gene to search')
 parser.add_argument('res_loc', type=str, help='where you want the output to be saved')
 diagram = parser.add_subparsers(title="diagram", dest='diagram', help='select type of diagram')
 
@@ -21,7 +21,7 @@ diagram = parser.add_subparsers(title="diagram", dest='diagram', help='select ty
 parser_2d = diagram.add_parser('2d', help='shows distribution of SNV along amino acid sequence')
 
 parser_3d = diagram.add_parser('3d', help='shows distribution of SNV as a heatmap on pdb structure')
-parser_3d.add_argument('uniprot_name', help="uniprot name of the gene is needed to search for pdb structure")
+#parser_3d.add_argument('uniprot_name', help="uniprot name of the gene is needed to search for pdb structure")
 parser_3d.add_argument('--pdb_code', default='', help='you can specify pdb if you want')
 
 args = parser.parse_args()
@@ -49,8 +49,11 @@ logger.addHandler(file_handler)
 
 ###############################
 
+#find CCDS ID on uniprot
+CCDS_ID = Up_CCDS_ID(args.uniprot_name)
+
 #locate exons and the relevent section within GRCh38
-CCDS = CCDS(args.gene_name)
+CCDS = CCDS(CCDS_ID)
 C_num = CCDS[0].at[0,"Chromosome"]
 g_start = CCDS[0]["Start"].min()
 g_stop = CCDS[0]["Stop"].max()
