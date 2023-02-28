@@ -109,6 +109,7 @@ exsnv = SNV_used[SNV_used["exon_intron"]=="exon"]
 exsnv = exsnv.reset_index(drop=True)
 logger.debug("SNVs in exon")
 logger.debug(exsnv)
+exsnv.to_csv(res_loc+"/"+args.uniprot_name+"_snv.csv", index=False)
 
 #make a histogram
 if args.diagram == "2d":

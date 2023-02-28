@@ -7,7 +7,8 @@ database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
             "ClinVar": "/db/ClinVar/clinvar.vcf", \
             "dbSNP": "/db/dbSNP/GCF_000001405.39", \
             "gnomAD": "/db/gnomAD3.1.2/", \
-            "COSMIC": "/work13/natsuki/Cosmic_sort.tsv", \
+            "swissprot": "/db/swissprot/uniprot_sprot.dat", \
+            "trembl": "/db/swissprot/uniprot_trembl.dat", \
             "GRCh38":  {"1": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa", \
                         "2": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.2.fa", \
                         "3": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.3.fa", \
@@ -60,6 +61,9 @@ hashtb_loc = {"ClinVar": "/db/ClinVar/ClinVar.hashtb", \
             "COSMIC": "/work13/natsuki/hashtb/COSMIC.hashtb"}
 
 #location of separate functions
+
+
+
 getuniprot_loc = ""
 pdbblast_loc = ""
 getpdbsw = ""
