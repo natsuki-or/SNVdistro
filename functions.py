@@ -107,13 +107,17 @@ def getuniprot(ids):
 
 def Up_CCDS_ID(uniprot_name):
     Up_CCDS_ID.logger = logging.getLogger("SNVdistro.mod.Up_CCDS_ID")
-    cmd1 = ['getuniprot', '-s', uniprot_name]
-    p = sp.Popen(cmd1, stdout=sp.PIPE)
-    output = p.stdout.read().decode('utf-8')
-    list_uniprot = output.split("\n")
+    list_uniprot = getuniprot([uniprot_name])
     ccds_id_loc = [n for n, l in enumerate(list_uniprot) if l.startswith('DR   CCDS;')]
     ccds_id = re.findall('; (.*);', list_uniprot[ccds_id_loc[0]])
     return ccds_id
+
+
+def Up_PDB_ID(uniprot_name):
+    list_uniprot = getuniprot([uniprot_name])
+    PDB_id_loc = [n for n, l in enumerate(list_uniprot) if l.startswith('DR   PDB;')]
+    PDB_id = re.findall('; (.*);', list_uniprot[PDB_id_loc[0]])
+    return PDB_id
 
 
 def CCDS(CCDS_ID):
@@ -311,82 +315,6 @@ def gnomAD_snv(C_num, g_start, g_stop):
     return g_snv
 
 
-def COSMIC_snv(gene,C_num, g_start, g_stop):
-    """
-    This is incomplete.
-    The original COSMIC file is not sorted in anyway. (or maybe I just couldn't figure out how it was sorted)
-    There is an alphabetically sorted COMIC file available at /work13/natsuki/Cosmic_sort.tsv
-    However, it lacked consistency over how mutation location were stored in the database
-    and it was quite challenging to use. As I felt the other 3 was sufficient to capture most
-    SNVs, COSMIC was not included in the search in the end.
-    """
-    # import pandas as pd
-    # pd.options.mode.chained_assignment = None
-    # import numpy as np
-    ftls = []
-    pt_l = []
-    pt_b = []
-    with open ("/work13/natsuki/hashtb/COSMIC.hashtb","r") as f:
-        for line in f:
-            tmp = line.strip().split(",")
-            ftls.append(tmp[1])
-            pt_l.append(int(tmp[2]))
-            pt_b.append(int(tmp[3]))
-    total = len(ftls)
-    t_ftls = gene[0:2]
-    for i in range(total):
-        if t_ftls.casefold() == "A1".casefold():
-            start_l = 0
-            stop_l = pt_l[1]
-            start_b = 0
-            stop_b = pt_b[2]
-            break
-        if t_ftls.casefold() == ftls[i].casefold():
-            start_l = pt_l[i-1]
-            stop_l = pt_l[i]
-            start_b = pt_b[i-1]
-            stop_b = pt_b[i]
-            break
-    with open("/work13/natsuki/Cosmic_sort.tsv","r", encoding="latin") as f:
-        f.seek(start_b)
-        doc = f.read(stop_b-start_b)
-    doc = doc.split("\n")
-    results = []
-    for j in range(len(doc)):
-        if doc[j].casefold().startswith(gene.casefold()):
-            results.append(doc[j])
-    #################
-    df = pd.DataFrame(results)
-    df = df[0].str.split("\t", expand=True)
-    df.columns = ["Gene name", "Accession Number", "Gene CDS length", "HGNC ID", \
-                "Sample name", "Sample id", "ID_tumour", "Primary site", "Site subtype 1", \
-                "Site subtype 2", "Site subtype 3", "Primary histology", "Histology subtype 1", \
-                "Histology subtype 2", "Histology subtype 3", "Genome-wide screen", \
-                "GENOMIC_MUTATION_ID", "LEGACY_MUTATION_ID", "MUTATION_ID", "Mutation CDS", \
-                "Mutation AA", "Mutation Description", "Mutation zygosity", "LOH", "GRCh", \
-                "Mutation genome position", "Mutation strand", "Resistance Mutation", \
-                "Mutation somatic status", "Pubmed_PMID", "ID_STUDY", "Sample Type", \
-                "Tumour origin", "Age", "HGVSP", "HGVSC", "HGVSG"]
-    #print(df)
-    df_loc_data = df.loc[:,["Gene name", "Accession Number", "Mutation CDS", "Mutation AA", \
-                            "Mutation Description", "GRCh", "Mutation genome position", \
-                            "Mutation strand","HGVSG"]]
-    df_loc_data.replace('', np.nan, inplace=True)
-    v = df_loc_data.dropna(subset=["Mutation CDS", "Mutation AA", "Mutation Description", \
-                        "GRCh", "Mutation genome position", "Mutation strand","HGVSG"], how="all")
-    #######################
-    ################
-    ###########
-    #######
-    ####
-    ##
-    #
-    g_snv = v[v["Mutation Description"]=="single_nucleotide_variant"]
-    g_snv.drop('CLNVC', inplace=True, axis=1)
-    g_snv = g_snv.reset_index(drop=True)
-    return g_snv
-
-
 def mut_amino(df,g_snv,g_start, g_stop,g):
     # import pandas as pd
     # pd.options.mode.chained_assignment = None
@@ -482,18 +410,11 @@ def rgb(minimum, maximum, value):
         return [r, g, b]
 
 
-def diagram3d(upname,res_loc,exsnv,pdb_code):
+def diagram3d(upname,res_loc,exsnv,pdb_ID_chain):
     from scipy import stats
-    #import subprocess as sp
-    # import pandas as pd
-    # import numpy as np
     from pymol import cmd
     ###############  getuniprot  ###############
-    #upname = args.uniprot_name
-    cmd1 = ['getuniprot', '-s', upname]
-    p = sp.Popen(cmd1, stdout=sp.PIPE)
-    output = p.stdout.read().decode('utf-8')
-    list_uniprot = output.split("\n")
+    list_uniprot = getuniprot([upname])
     for s in range(len(list_uniprot)):
         if list_uniprot[s].startswith("SQ"):
             break
@@ -502,7 +423,7 @@ def diagram3d(upname,res_loc,exsnv,pdb_code):
         for row in refseq:
             file.write(''.join([str(item) for item in row]))
             file.write('\n')
-    if pdb_code=="":
+    if pdb_ID_chain=="":
         ################  pdbblast  ###############
         sp.run(['pdbblast', res_loc+"/"+upname+'.faa', res_loc+"/"+upname+'.blast'])
         ################  open blast result and get pdb code ###############
@@ -516,12 +437,12 @@ def diagram3d(upname,res_loc,exsnv,pdb_code):
             if lines[j].startswith(">"):
                 break
         first_pdb = lines[i:j-1]
-        pdb_codeA = first_pdb[0][5:10]  ##to use it in getpdbsw -s ID
-        pdb_code = first_pdb[0][5:9]    ##to put it in pymol
+        pdb_ID_chain = first_pdb[0][5:10]  ##to use it in getpdbsw -s ID
+        pdb_ID = first_pdb[0][5:9]    ##to put it in pymol
     else:
-        pdb_codeA = pdb_code + "A"
+        pdb_ID = pdb_ID_chain[0:4]    #requires user to type in the chain
     ################  get pdb sequence  ###############
-    cmd2 = ['getpdbsw', '-s', pdb_codeA] #2L7BA
+    cmd2 = ['getpdbsw', '-s', pdb_ID_chain]
     p2 = sp.Popen(cmd2, stdout=sp.PIPE)
     output2 = p2.stdout.read().decode('utf-8')
     list2 = output2.split("\n")
@@ -534,7 +455,6 @@ def diagram3d(upname,res_loc,exsnv,pdb_code):
         lines = f.read().splitlines()
     refseq =  "".join(lines[1:-1]).replace(" ", "")
     from Bio import Align
-    # from Bio import SeqIO
     from Bio.Align import substitution_matrices
     aligner = Align.PairwiseAligner()
     aligner.open_gap_score = -10
@@ -543,54 +463,38 @@ def diagram3d(upname,res_loc,exsnv,pdb_code):
     alignments = aligner.align(refseq, pdbseq)
     alignment = alignments[0]
     aliloc = alignment.aligned
-    ################# convert residue position to that of pdb  ###############
+    #################　make dict to convert　###############
+    aliloc_dict = {}
+    for i, tup in enumerate(aliloc[0]):
+        for j in range(tup[0], tup[1]):
+            aliloc_dict[j+1] = aliloc[1][i][0] + j - tup[0] + 1
+    aliloc_dict = {v: k for k, v in aliloc_dict.items()}
+    #################　fetch mmcif file from PDB　###############
+    from Bio.PDB import PDBList
+    pdbl=PDBList()
+    cif_file_path = pdbl.retrieve_pdb_file(pdb_ID, file_format="mmCif", pdir = res_loc) #get pdb
+    cif_file = pd.read_table(cif_file_path, header=None)
+    modi_cif_file = cif_file[0].str.split(expand=True)
+    #################　first, reset residue position so that it starts from one　###############
+    def rank_list(nums):
+        ranks = {}
+        rank = 1
+        for num in set(nums):
+            ranks[num] = rank
+            rank += 1
+        return [ranks[num] for num in nums]
+    cha = pdb_ID_chain[-1].upper()
+    mask = ((modi_cif_file.iloc[:, 0] == "ATOM") | (modi_cif_file.iloc[:, 0] == "HETATM")) & (modi_cif_file.iloc[:, 18] == cha)
+    modi_cif_file.loc[mask, 16] = rank_list(modi_cif_file[((modi_cif_file[0]==("ATOM"))|(modi_cif_file[0]==("HETATM"))) & (modi_cif_file[18] == cha)][16].astype(int))
+    #################　second, reindex residue position so that the amino acid position is aligned to the reference sequence　###############
+    modi_cif_file.loc[mask] = modi_cif_file.loc[mask].replace({16:aliloc_dict})
+    modi_cif_file.to_csv(res_loc+"/"+pdb_ID+'_reindexed.cif',sep="\t", header=False, index=False) #save reindexed_cif file
+    ################# workout variations within the range of pdb file  ###############
     exsnv["pdb_POS"] = ""
     for i in range(len(exsnv)):
         for j in range(len(aliloc[0])):
             if aliloc[0][j][0] <= exsnv["p_POS"][i] < aliloc[0][j][1]:
-                dif = aliloc[0][0][0]
-                while j>0:
-                    dif += aliloc[0][j][0]-aliloc[0][j-1][1]
-                    j -= 1
-                exsnv["pdb_POS"][i] = exsnv["p_POS"][i] - dif
-    ###############  get pdb structure file  ###############
-    from Bio.PDB import PDBList
-    pdbl=PDBList()
-    cif_file_path = pdbl.retrieve_pdb_file(pdb_code, file_format="mmCif", pdir = res_loc) #get pdb
-    cif_file = pd.read_table(cif_file_path, header=None)
-    subtitle = ["data", "_entry.id", "_cell.", "_symmetry.", "loop_", "_atom_site.", "ATOM"] #extracts nessesary info to feed it to pymol
-    str_file = cif_file[cif_file[0].str.startswith(tuple(subtitle))]
-    str_file = str_file[0].str.split(expand=True).reset_index(drop=True)
-    for n in range(len(str_file)):
-        if str_file[0][n].startswith("ATOM"):
-            break
-    for m in range(n,len(str_file)):
-        if str_file[0][m].startswith("loop_"):
-            break
-    str_file.drop(str_file.tail(len(str_file)-m).index, inplace=True) #gets rid of extra "loop_" at the end
-    for t in range(n,len(str_file)):
-        if str_file[20][t]>"1":
-            break
-    str_file.drop(str_file.tail(len(str_file)-t).index, inplace=True) #gets rid of other model numbers
-    ###############  re-index amino acid number  ###############
-    str_file = str_file[(str_file[7].isnull()) | (str_file[7]=="1")]
-    idx = 0
-    for i in range(n-1,len(str_file)):
-        try:
-            if str_file[16][i] == str_file[16][i+1]:
-                str_file[16][i]= idx
-            else:
-                idx += 1
-                str_file[16][i]= idx
-        except Exception:
-            pass
-    str_file[16] = str_file[16].shift(1, fill_value=None)
-    str_file.fillna("",inplace=True)
-    s = str_file.values.tolist()
-    with open(res_loc+"/"+pdb_code+'_reindexed.cif', 'w') as file:
-        for row in s:
-            file.write(' '.join([str(item) for item in row]))
-            file.write('\n')
+                exsnv["pdb_POS"][i] = exsnv["p_POS"][i]
     ############### match frequency to heatmap ###############
     freq = exsnv["pdb_POS"].mask(exsnv["pdb_POS"]=="").value_counts().to_dict()
     for i in range(1,aliloc[1][-1][1]-1):
@@ -604,15 +508,15 @@ def diagram3d(upname,res_loc,exsnv,pdb_code):
     for j in range(len(freq_z.loc[freq_z[1] != 0])):
         freq_z["rgb"][j] = rgb(-abs(freq_z[2]).max(), abs(freq_z[2]).max(), freq_z[2][j])
     ############### pymol ###############
-    cmd.load(res_loc+"/"+pdb_code+'_reindexed.cif')
-    cmd.color("green",  pdb_code)
+    cmd.load(res_loc+"/"+pdb_ID+'_reindexed.cif')
+    cmd.color("green",  pdb_ID)
     f = freq_z["rgb"].drop_duplicates().reset_index(drop="True")
     f = f[f.astype(bool)]
     for colour in range(len(f)):
         cmd.set_color(str(f[colour]), f[colour])
     for k in range(len(freq_z.loc[freq_z[1] != 0])):
-        cmd.color(str(freq_z["rgb"][k]),"resi "+str(freq_z[0][k]))
-    cmd.color("blue",  "color green")
+        cmd.color(str(freq_z["rgb"][k]),"chain "+ cha +" & resi "+str(freq_z[0][k]))
+    cmd.color("blue",  "color green & chain "+ cha)
     cmd.show("wire", "all")
-    cmd.save(filename=res_loc+"/"+pdb_code+"_mutfreq.pse", selection =pdb_code , state="-1")
+    cmd.save(filename=res_loc+"/"+pdb_ID+"_mutfreq.pse", selection =pdb_ID , state="-1")
     return print("pymol file saved!")
