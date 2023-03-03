@@ -58,7 +58,8 @@ clnsig_to_include = {"Benign": True, \
 hashtb_loc = {"ClinVar": "/db/ClinVar/ClinVar.hashtb", \
             "dbSNP": "/db/dbSNP/dbSNP.hashtb", \
             "gnomAD": "/db/gnomAD3.1.2/TABLE/", \
-            "COSMIC": "/work13/natsuki/hashtb/COSMIC.hashtb"}
+            "swissprot": "/db/swissprot/key/swissprot/", \
+            "trembl": "/db/swissprot/key/trembl/"}
 
 #location of separate functions
 

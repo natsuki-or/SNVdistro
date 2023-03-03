@@ -80,7 +80,7 @@ def getuniprot(ids):
         idfile,idlist = selectfile(id,header,idfile,idlist,number,maximum)
 
     db   = database_loc["swissprot"]
-    path = '/db/swissprot/key/swissprot/'
+    path = hashtb_loc["swissprot"]
     idlist,output = retrieve(db,idfile,idlist,path,header,output)
 
     empty = 0
@@ -92,7 +92,7 @@ def getuniprot(ids):
         return output
 
     db   = database_loc["trembl"]
-    path = '/db/swissprot/key/trembl/'
+    path = hashtb_loc["trembl"]
     idlist,output = retrieve(db,idfile,idlist,path,header,output)
 
     for ids in idlist:
