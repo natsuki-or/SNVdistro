@@ -13,21 +13,21 @@ import time
 
 ###########argparse#############
 parser = argparse.ArgumentParser(description='searches databases for SNV of a gene')
-parser.add_argument('uniprot_id', type=str, description='name of gene to search')
-parser.add_argument('res_loc', type=str, description='where you want the output to be saved')
-diagram = parser.add_subparsers(title="diagram", dest='diagram', description='select type of diagram')
+parser.add_argument('uniprot_id', type=str, help='name of gene to search')
+parser.add_argument('res_loc', type=str, help='where you want the output to be saved')
+diagram = parser.add_subparsers(title="diagram", dest='diagram', help='select type of diagram')
 
 
-parser_2d = diagram.add_parser('2d', description='shows distribution of SNV along amino acid sequence')
+parser_2d = diagram.add_parser('2d', help='shows distribution of SNV along amino acid sequence')
 
-parser_3d = diagram.add_parser('3d', description='shows distribution of SNV as a heatmap on pdb structure')
-parser_3d.add_argument('--user_pdb_ID', default='', description='you can specify pdb if convenient. Include the chain(e.g. 2L7B chain A => 2L7BA)')
+parser_3d = diagram.add_parser('3d', help='shows distribution of SNV as a heatmap on pdb structure')
+parser_3d.add_argument('--user_pdb_ID', default='', help='you can specify pdb if convenient. Include the chain(e.g. 2L7B chain A => 2L7BA)')
 
 args = parser.parse_args()
 ###############################
 
 #make a folder to put all outputs in
-res_loc = args.res_loc+"/"+args.uniprot_id+time.strftime("%Y%m%d_%H%M%S")
+res_loc = args.res_loc+"/"+args.uniprot_id+"_"+time.strftime("%Y%m%d_%H%M%S")
 os.makedirs(res_loc)
 
 ###########logging#############
