@@ -9,11 +9,10 @@ pd.options.mode.chained_assignment = None
 import re
 from Bio import SeqIO
 from Bio.Seq import MutableSeq
-import subprocess as sp
 import logging
 module_logger = logging.getLogger("SNVdistro.mod")
 
-
+"""
 # function: selectfile()
 def selectfile(id,header,idfile,idlist,number,maximum):
     idlen = len(id)
@@ -29,10 +28,10 @@ def selectfile(id,header,idfile,idlist,number,maximum):
         idlist[idfile.index(idx)].append(id)
     return idfile,idlist
 
-#
+
 # function: retrieve()
 def retrieve(db,idfile,idlist,path,header,output):
-    """ Retrieve Uniprot Data """
+    # Retrieve Uniprot Data
     g = open(db,'r')
     length = len(idfile)
     for num in range(0,length):
@@ -61,7 +60,7 @@ def retrieve(db,idfile,idlist,path,header,output):
 
     return idlist, output
 
-#
+
 # function: init()
 def init():
     header = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
@@ -69,7 +68,7 @@ def init():
     maximum    = 2047
     return header,number,maximum
 
-#
+
 # main function
 def getuniprot(ids):
     header, number, maximum = init()
@@ -101,23 +100,25 @@ def getuniprot(ids):
                 print ('%s does not exist' % (e), file=stderr)
 
     return output
-#EOF
+"""
+
+from urllib import request
+def getuniprot(uniprot_id):
+    URL = 'https://rest.uniprot.org/uniprotkb/' + uniprot_id + '.txt'
+    response = request.urlopen(URL)
+    content = response.read()
+    response.close()
+    txt = content.decode().split('\n')
+    return txt
 
 
-
-def Up_CCDS_ID(uniprot_name):
+def Up_CCDS_ID(uniprot_id):
     Up_CCDS_ID.logger = logging.getLogger("SNVdistro.mod.Up_CCDS_ID")
-    list_uniprot = getuniprot([uniprot_name])
+    list_uniprot = getuniprot(uniprot_id)
     ccds_id_loc = [n for n, l in enumerate(list_uniprot) if l.startswith('DR   CCDS;')]
     ccds_id = re.findall('; (.*);', list_uniprot[ccds_id_loc[0]])
     return ccds_id
 
-
-def Up_PDB_ID(uniprot_name):
-    list_uniprot = getuniprot([uniprot_name])
-    PDB_id_loc = [n for n, l in enumerate(list_uniprot) if l.startswith('DR   PDB;')]
-    PDB_id = re.findall('; (.*);', list_uniprot[PDB_id_loc[0]])
-    return PDB_id
 
 
 def CCDS(CCDS_ID):
@@ -207,9 +208,6 @@ def ClinVar_snv(C_num, g_start, g_stop):
 
 
 def dbSNP(C_num, g_start, g_stop):
-    # import pandas as pd
-    # pd.options.mode.chained_assignment = None
-    # import re
     dbSNP.logger = logging.getLogger("SNVdistro.mod.dbSNP")
     chr_an = {"NC_000001.11":1, "NC_000002.12":2, "NC_000003.12":3, "NC_000004.12":4, "NC_000005.10":5, \
             "NC_000006.12":6, "NC_000007.14":7, "NC_000008.11":8, "NC_000009.12":9, "NC_000010.11":10, \
@@ -266,10 +264,6 @@ def dbSNP(C_num, g_start, g_stop):
 
 
 def gnomAD_snv(C_num, g_start, g_stop):
-    #from sys import *
-    # import pandas as pd
-    # pd.options.mode.chained_assignment = None
-    # import re
     gnomAD_snv.logger = logging.getLogger("SNVdistro.mod.gnomAD_snv")
     nt = []
     pt = []
@@ -316,11 +310,6 @@ def gnomAD_snv(C_num, g_start, g_stop):
 
 
 def mut_amino(df,g_snv,g_start, g_stop,g):
-    # import pandas as pd
-    # pd.options.mode.chained_assignment = None
-    # from Bio import SeqIO
-    # from Bio.Seq import MutableSeq
-    # import numpy as np
     g_snv["exon_intron"] = '' #8
     g_snv['nrn'] = '' #9
     #
@@ -381,8 +370,188 @@ def mut_amino(df,g_snv,g_start, g_stop,g):
     return g_snv
 
 
+
+
+def pdbblast(seq):
+    import requests
+    s = {
+      "query": {
+      "type": "terminal",
+      "service": "sequence",
+      "parameters": {
+      "evalue_cutoff": 1,
+      "identity_cutoff": 0.9,
+      "sequence_type": "protein",
+      "value": seq
+      }
+      },
+      "request_options": {"scoring_strategy": "sequence"},
+      "return_type": "polymer_instance"
+      }
+    r = requests.post('https://search.rcsb.org/rcsbsearch/v2/query', json=s).json()
+    ID = list()
+    evalue = list()
+    for result in r['result_set']:
+        ID.append([result][0]['identifier'])
+        evalue.append(float([result][0]["score"]))
+    return ID,evalue
+
+
+
+
+import datetime
+
+RESDAT = "./residue.dat"
+
+ATOM = ['_atom_site.group_PDB',
+        '_atom_site.id',
+        '_atom_site.type_symbol',
+        '_atom_site.label_atom_id',
+        '_atom_site.label_alt_id',
+        '_atom_site.label_comp_id',
+        '_atom_site.label_asym_id',
+        '_atom_site.label_entity_id',
+        '_atom_site.label_seq_id',
+        '_atom_site.pdbx_PDB_ins_code',
+        '_atom_site.Cartn_x',
+        '_atom_site.Cartn_y',
+        '_atom_site.Cartn_z',
+        '_atom_site.occupancy',
+        '_atom_site.B_iso_or_equiv',
+        '_atom_site.pdbx_formal_charge',
+        '_atom_site.auth_seq_id',
+        '_atom_site.auth_comp_id',
+        '_atom_site.auth_asym_id',
+        '_atom_site.auth_atom_id',
+        '_atom_site.pdbx_PDB_model_num']
+
+
+def readmmcif(file):
+    pdb = list()
+    with open(file,"r") as f:
+        for line in f:
+            pdb.append(line.replace('\n',''))
+            if "_entry.id" in line:
+                pdbid = line.strip().split()[1]
+
+    return pdbid, pdb
+
+
+def ext_atom(pdb):
+    atom = list()
+    for i in range(len(pdb)):
+        if ('ATOM'in pdb[i] or 'HETATM' in pdb[i]) and \
+            (pdb[i].split()[ATOM.index('_atom_site.label_alt_id')] == '.' or \
+             pdb[i].split()[ATOM.index('_atom_site.label_alt_id')] == 'A' or \
+             pdb[i].split()[ATOM.index('_atom_site.label_alt_id')] == '1') and \
+            pdb[i].split()[ATOM.index('_atom_site.pdbx_PDB_model_num')] == '1':
+            atom.append(pdb[i].split())
+    return(atom)
+
+
+def newnum(atom):
+    sernum = list()
+    num = 1
+    sernum.append(num)
+    for i in range(1,len(atom)):
+        if  atom[i][ATOM.index('_atom_site.label_asym_id')] != \
+            atom[i-1][ATOM.index('_atom_site.label_asym_id')]:
+            num = 1
+        elif  atom[i][ATOM.index('_atom_site.label_seq_id')] != \
+              atom[i-1][ATOM.index('_atom_site.label_seq_id')]:
+            num += 1
+        sernum.append(num)
+    return sernum
+
+
+def het2atom(atom,sernum):
+    total = len(atom)
+    st = -1
+    alt = 0
+    for i in range(total):
+        if st == -1 and \
+           atom[i][ATOM.index('_atom_site.group_PDB')] == 'HETATM':
+            st = i-1
+        if st != -1 and \
+           atom[i][ATOM.index('_atom_site.group_PDB')] == 'ATOM':
+            fn = i
+            if atom[st][ATOM.index('_atom_site.label_asym_id')] == \
+               atom[fn][ATOM.index('_atom_site.label_asym_id')] and \
+               sernum[st] < sernum[fn] and \
+               int(atom[st][ATOM.index('_atom_site.label_seq_id')]) <= \
+               int(atom[fn][ATOM.index('_atom_site.label_seq_id')]):
+                for j in range(st+1,fn):
+                    atom[j][ATOM.index('_atom_site.group_PDB')] = 'ATOM'
+                alt = 1
+                print("REMARK   HETATM -> ATOM [%s]" % atom[st+1][ATOM.index('_atom_site.label_comp_id')],file=sys.stderr)
+            st = -1
+    for i in range(total):
+        if atom[i][ATOM.index('_atom_site.group_PDB')] == 'ATOM' and \
+           sernum[i] != int(atom[i][ATOM.index('_atom_site.label_seq_id')]):
+            print("REMARK   RENUMBERING",file=sys.stderr)
+            break
+    return atom
+
+
+def replace_res(atom,sernum):
+    total = len(atom)
+    for i in range(total):
+        atom[i][ATOM.index('_atom_site.label_seq_id')] = sernum[i]
+    return atom
+
+
+def conv(atom):
+    ot1 = list()
+    ot3 = list()
+    with open(RESDAT,"r") as f:
+        for line in f:
+            tmp = line.strip().split()
+            ot3.append(tmp[0])
+            ot1.append(tmp[1])
+
+    chain = list()
+    ch    = atom[0][ATOM.index('_atom_site.label_asym_id')]
+    chain.append(atom[0][ATOM.index('_atom_site.label_asym_id')])
+
+    seq   = list()
+    sq    = ''
+
+    total = len(atom)
+    for i in range(total):
+        if i != 0 and ch != atom[i][ATOM.index('_atom_site.label_asym_id')]:
+            if len(sq) != 0:
+                seq.append(sq)
+            else:
+                chain.pop()
+            sq = ''
+
+            ch = atom[i][ATOM.index('_atom_site.label_asym_id')]
+            chain.append(ch)
+
+        if atom[i][ATOM.index('_atom_site.group_PDB')] == "ATOM" and \
+           atom[i][ATOM.index('_atom_site.label_atom_id')] == "CA":
+            sq += ot1[ot3.index(atom[i][ATOM.index('_atom_site.label_comp_id')])]
+    if len(sq) != 0:
+        seq.append(sq)
+    else:
+        chain.pop()
+    return(chain,seq)
+
+
+def atom2seq(id):
+    pdbid,pdb = readmmcif(id)
+    atom = ext_atom(pdb)
+    sernum = newnum(atom)
+    atom = het2atom(atom,sernum)
+    atom = replace_res(atom,sernum)
+    chain,seq = conv(atom)
+    return dict(zip(chain, seq))
+
+
+
+
+
 def diagram2d(exsnv,b):
-    # import pandas as pd
     import matplotlib.pyplot as plt
     #
     a = exsnv["p_POS"].to_numpy()
@@ -410,50 +579,32 @@ def rgb(minimum, maximum, value):
         return [r, g, b]
 
 
-def diagram3d(upname,res_loc,exsnv,pdb_ID_chain):
+def diagram3d(uniprot_id,res_loc,exsnv,user_pdb_ID):
     from scipy import stats
     from pymol import cmd
     ###############  getuniprot  ###############
-    list_uniprot = getuniprot([upname])
-    for s in range(len(list_uniprot)):
-        if list_uniprot[s].startswith("SQ"):
+    list_uniprot = getuniprot(uniprot_id)
+    for seq_loc in range(len(list_uniprot)):
+        if list_uniprot[seq_loc].startswith("SQ"):
             break
-    refseq = list_uniprot[s:-1]
-    with open(res_loc+"/"+upname+'.faa', 'w') as file:
-        for row in refseq:
-            file.write(''.join([str(item) for item in row]))
-            file.write('\n')
-    if pdb_ID_chain=="":
+    refseq =  re.findall("[A-Z]+", "".join(list_uniprot[seq_loc+1:]).replace(" ", ""))[0]
+    ###############  get pdb sequence ID  ###############
+    if user_pdb_ID=="":
         ################  pdbblast  ###############
-        sp.run(['pdbblast', res_loc+"/"+upname+'.faa', res_loc+"/"+upname+'.blast'])
-        ################  open blast result and get pdb code ###############
-        with open(res_loc+"/"+upname+'.blast', 'r') as f:
-            lines = f.readlines()
-            #print(lines)
-        for i in range(len(lines)):
-            if lines[i].startswith(">"):
-                break
-        for j in range(i+1, len(lines)):
-            if lines[j].startswith(">"):
-                break
-        first_pdb = lines[i:j-1]
-        pdb_ID_chain = first_pdb[0][5:10]  ##to use it in getpdbsw -s ID
-        pdb_ID = first_pdb[0][5:9]    ##to put it in pymol
+        pdbblast_result = pdbblast(refseq)
+        best_match_pdb = pdbblast_result[0][0]
+        pdb_ID = best_match_pdb[:4]    ##to put it in pymol
+        pdb_chain = best_match_pdb[5:]  ##to use it in getpdbsw -s ID
     else:
-        pdb_ID = pdb_ID_chain[0:4]    #requires user to type in the chain
+        pdb_ID = user_pdb_ID[:4] #requires user to type in the chain
+        pdb_chain = user_pdb_ID[4:]
+    #################　fetch mmcif file from PDB　###############
+    from Bio.PDB import PDBList
+    pdbl=PDBList()
+    cif_file_path = pdbl.retrieve_pdb_file(pdb_ID, file_format="mmCif", pdir = res_loc) #get pdb
     ################  get pdb sequence  ###############
-    cmd2 = ['getpdbsw', '-s', pdb_ID_chain]
-    p2 = sp.Popen(cmd2, stdout=sp.PIPE)
-    output2 = p2.stdout.read().decode('utf-8')
-    list2 = output2.split("\n")
-    for s in range(len(list2)):
-        if list2[s].startswith("SQ"):
-            break
-    pdbseq = "".join(list2[s+1:-2]).replace(" ", "")
+    pdbseq = atom2seq(cif_file_path)[pdb_chain]
     #################  get alignment to reference sequence  ###############
-    with open(res_loc+"/"+upname+".faa") as f:
-        lines = f.read().splitlines()
-    refseq =  "".join(lines[1:-1]).replace(" ", "")
     from Bio import Align
     from Bio.Align import substitution_matrices
     aligner = Align.PairwiseAligner()
@@ -469,10 +620,7 @@ def diagram3d(upname,res_loc,exsnv,pdb_ID_chain):
         for j in range(tup[0], tup[1]):
             aliloc_dict[j+1] = aliloc[1][i][0] + j - tup[0] + 1
     aliloc_dict = {v: k for k, v in aliloc_dict.items()}
-    #################　fetch mmcif file from PDB　###############
-    from Bio.PDB import PDBList
-    pdbl=PDBList()
-    cif_file_path = pdbl.retrieve_pdb_file(pdb_ID, file_format="mmCif", pdir = res_loc) #get pdb
+    #################　reindex cif file　###############
     cif_file = pd.read_table(cif_file_path, header=None)
     modi_cif_file = cif_file[0].str.split(expand=True)
     #################　first, reset residue position so that it starts from one　###############
@@ -483,7 +631,7 @@ def diagram3d(upname,res_loc,exsnv,pdb_ID_chain):
             ranks[num] = rank
             rank += 1
         return [ranks[num] for num in nums]
-    cha = pdb_ID_chain[-1].upper()
+    cha = pdb_chain.upper()
     mask = ((modi_cif_file.iloc[:, 0] == "ATOM") | (modi_cif_file.iloc[:, 0] == "HETATM")) & (modi_cif_file.iloc[:, 18] == cha)
     modi_cif_file.loc[mask, 16] = rank_list(modi_cif_file[((modi_cif_file[0]==("ATOM"))|(modi_cif_file[0]==("HETATM"))) & (modi_cif_file[18] == cha)][16].astype(int))
     #################　second, reindex residue position so that the amino acid position is aligned to the reference sequence　###############
@@ -517,6 +665,9 @@ def diagram3d(upname,res_loc,exsnv,pdb_ID_chain):
     for k in range(len(freq_z.loc[freq_z[1] != 0])):
         cmd.color(str(freq_z["rgb"][k]),"chain "+ cha +" & resi "+str(freq_z[0][k]))
     cmd.color("blue",  "color green & chain "+ cha)
+    cmd.color("grey80",  "color green")
+    cmd.set("cartoon_transparency", 0.5, "color grey80")
+    cmd.set("stick_transparency", 0.5, "color grey80")
     cmd.show("wire", "all")
     cmd.save(filename=res_loc+"/"+pdb_ID+"_mutfreq.pse", selection =pdb_ID , state="-1")
     return print("pymol file saved!")
