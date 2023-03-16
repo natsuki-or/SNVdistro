@@ -1,7 +1,7 @@
 '''
 please edit the parameters below according to  your environment
 '''
-
+ 
 #location of database files
 database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
             "ClinVar": "/db/ClinVar/clinvar.vcf", \
@@ -61,13 +61,8 @@ hashtb_loc = {"ClinVar": "/db/ClinVar/ClinVar.hashtb", \
             "swissprot": "/db/swissprot/key/swissprot/", \
             "trembl": "/db/swissprot/key/trembl/"}
 
-#location of separate functions
 
 
-
-getuniprot_loc = ""
-pdbblast_loc = ""
-getpdbsw = ""
 
 #This parameter changes the amount of incliments when forming hash table of the database (bin/ jump window).
 #e.g. if set to 100,000, it will store the bite location of mutations at every 100,000 residues
