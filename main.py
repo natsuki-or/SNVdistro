@@ -13,7 +13,7 @@ import time
 
 ###########argparse#############
 parser = argparse.ArgumentParser(description='searches databases for SNV of a gene')
-parser.add_argument('uniprot_name', type=str, description='name of gene to search')
+parser.add_argument('uniprot_id', type=str, description='name of gene to search')
 parser.add_argument('res_loc', type=str, description='where you want the output to be saved')
 diagram = parser.add_subparsers(title="diagram", dest='diagram', description='select type of diagram')
 
@@ -21,14 +21,13 @@ diagram = parser.add_subparsers(title="diagram", dest='diagram', description='se
 parser_2d = diagram.add_parser('2d', description='shows distribution of SNV along amino acid sequence')
 
 parser_3d = diagram.add_parser('3d', description='shows distribution of SNV as a heatmap on pdb structure')
-#parser_3d.add_argument('uniprot_name', help="uniprot name of the gene is needed to search for pdb structure")
 parser_3d.add_argument('--user_pdb_ID', default='', description='you can specify pdb if convenient. Include the chain(e.g. 2L7B chain A => 2L7BA)')
 
 args = parser.parse_args()
 ###############################
 
 #make a folder to put all outputs in
-res_loc = args.res_loc+"/"+args.uniprot_name+time.strftime("%Y%m%d_%H%M%S")
+res_loc = args.res_loc+"/"+args.uniprot_id+time.strftime("%Y%m%d_%H%M%S")
 os.makedirs(res_loc)
 
 ###########logging#############
@@ -42,7 +41,7 @@ stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
 #log file
-file_handler = logging.FileHandler(res_loc+'/'+args.uniprot_name+'.log')
+file_handler = logging.FileHandler(res_loc+'/'+args.uniprot_id+'.log')
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
@@ -54,7 +53,7 @@ if (len(args.user_pdb_ID)>0) & (len(args.user_pdb_ID) != 5):
     exit()
 
 #find CCDS ID on uniprot
-CCDS_ID = Up_CCDS_ID(args.uniprot_name)
+CCDS_ID = Up_CCDS_ID(args.uniprot_id)
 logger.debug("looking for the gene on CCDS")
 
 #locate exons and the relevent section within GRCh38
@@ -114,18 +113,18 @@ exsnv = SNV_used[SNV_used["exon_intron"]=="exon"]
 exsnv = exsnv.reset_index(drop=True)
 logger.debug("SNVs in exon")
 logger.debug(exsnv)
-exsnv.to_csv(res_loc+"/"+args.uniprot_name+"_snv.csv", index=False)
+exsnv.to_csv(res_loc+"/"+args.uniprot_id+"_snv.csv", index=False)
 
 #make a histogram
 if args.diagram == "2d":
     diagram2d(exsnv,int(CCDS[0]["rn_len"].max()/3))
-    plt.savefig(res_loc+"/"+args.uniprot_name+".png")
+    plt.savefig(res_loc+"/"+args.uniprot_id+".png")
 
 
 #heatmap of frequency of variation in each amino acid
 if args.diagram == "3d":
     #from subprocess import *
-    diagram3d(args.uniprot_name, res_loc, exsnv, args.user_pdb_ID)
+    diagram3d(args.uniprot_id, res_loc, exsnv, args.user_pdb_ID)
 
 
 #log
