@@ -7,13 +7,16 @@ import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None
 import re
+import datetime
+from urllib import request
 from Bio import SeqIO
 from Bio.Seq import MutableSeq
 import logging
 module_logger = logging.getLogger("SNVdistro.mod")
 
 
-from urllib import request
+
+#obtains uniprot data based on id
 def getuniprot(uniprot_id):
     URL = 'https://rest.uniprot.org/uniprotkb/' + uniprot_id + '.txt'
     response = request.urlopen(URL)
@@ -23,6 +26,7 @@ def getuniprot(uniprot_id):
     return txt
 
 
+#converts uniprot id to ccds id
 def Up_CCDS_ID(uniprot_id):
     Up_CCDS_ID.logger = logging.getLogger("SNVdistro.mod.Up_CCDS_ID")
     list_uniprot = getuniprot(uniprot_id)
@@ -31,7 +35,7 @@ def Up_CCDS_ID(uniprot_id):
     return ccds_id
 
 
-
+#searches through CCDS to obtain exon locations and the relevant section of GRCh38
 def CCDS(CCDS_ID):
     CCDS.logger = logging.getLogger("SNVdistro.mod.CCDS")
     CCDS_doc = pd.read_table(database_loc["CCDS"])
@@ -68,6 +72,7 @@ def CCDS(CCDS_ID):
     return df,g
 
 
+#search ClinVar for snv
 def ClinVar_snv(C_num, g_start, g_stop):
     ClinVar_snv.logger = logging.getLogger("SNVdistro.mod.ClinVar_snv")
     chr = []
@@ -118,6 +123,7 @@ def ClinVar_snv(C_num, g_start, g_stop):
     return g_snv
 
 
+#search dbSNP for snv
 def dbSNP(C_num, g_start, g_stop):
     dbSNP.logger = logging.getLogger("SNVdistro.mod.dbSNP")
     chr_an = {"NC_000001.11":1, "NC_000002.12":2, "NC_000003.12":3, "NC_000004.12":4, "NC_000005.10":5, \
@@ -174,6 +180,7 @@ def dbSNP(C_num, g_start, g_stop):
     return g_snv
 
 
+#search gnomAD for snv
 def gnomAD_snv(C_num, g_start, g_stop):
     gnomAD_snv.logger = logging.getLogger("SNVdistro.mod.gnomAD_snv")
     nt = []
@@ -220,6 +227,34 @@ def gnomAD_snv(C_num, g_start, g_stop):
     return g_snv
 
 
+#search user's data for snv
+def usersdata_snv(C_num, g_start, g_stop):
+    usersdata_snv.logger = logging.getLogger("SNVdistro.mod.usersdata_snv")
+    t_chr = str(C_num)
+    st    = int(g_start)
+    fn    = int(g_stop)
+    lines_t=[]
+    with open(database_loc["usersdata"],"r") as f:
+    lines = [l for l in f if not l.startswith('#')]
+    for line in lines:
+        if (str(line.split()[0]) == t_chr) & (int(line.split()[1]) >= st):
+            if (int(line.split()[1]) > fn):
+                break
+            else:
+                lines_t.append(re.sub('\s+',' ',line))
+    v = pd.DataFrame(lines_t)
+    v = v[0].str.split(expand=True)
+    v.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO']
+    v["CLNSIG"] = v['INFO'].str.extract('(?:.*CLNSIG=)(.*?)(?:;)')
+    v["CLNVC"] = v['INFO'].str.extract('(?:.*CLNVC=)(.*?)(?:;)')
+    v.drop('INFO', inplace=True, axis=1) #delete "INFO" column
+    g_snv = v[v["CLNVC"]=="single_nucleotide_variant"] #extract single nucleotide variants
+    g_snv.drop('CLNVC', inplace=True, axis=1)
+    g_snv = g_snv.reset_index(drop=True)
+    return g_snv
+
+
+#checks if snv causes amino acid change
 def mut_amino(df,g_snv,g_start, g_stop,g):
     g_snv["exon_intron"] = '' #8
     g_snv['nrn'] = '' #9
@@ -281,8 +316,7 @@ def mut_amino(df,g_snv,g_start, g_stop,g):
     return g_snv
 
 
-
-
+#blast search on pdb
 def pdbblast(seq):
     import requests
     s = {
@@ -310,10 +344,9 @@ def pdbblast(seq):
 
 
 
-import datetime
+#obtains amino acid sequence baced on mmcif
 
 RESDAT = "./residue.dat"
-
 ATOM = ['_atom_site.group_PDB',
         '_atom_site.id',
         '_atom_site.type_symbol',
@@ -336,7 +369,6 @@ ATOM = ['_atom_site.group_PDB',
         '_atom_site.auth_atom_id',
         '_atom_site.pdbx_PDB_model_num']
 
-
 def readmmcif(file):
     pdb = list()
     with open(file,"r") as f:
@@ -346,7 +378,6 @@ def readmmcif(file):
                 pdbid = line.strip().split()[1]
 
     return pdbid, pdb
-
 
 def ext_atom(pdb):
     atom = list()
@@ -358,7 +389,6 @@ def ext_atom(pdb):
             pdb[i].split()[ATOM.index('_atom_site.pdbx_PDB_model_num')] == '1':
             atom.append(pdb[i].split())
     return(atom)
-
 
 def newnum(atom):
     sernum = list()
@@ -373,7 +403,6 @@ def newnum(atom):
             num += 1
         sernum.append(num)
     return sernum
-
 
 def het2atom(atom,sernum):
     total = len(atom)
@@ -403,13 +432,11 @@ def het2atom(atom,sernum):
             break
     return atom
 
-
 def replace_res(atom,sernum):
     total = len(atom)
     for i in range(total):
         atom[i][ATOM.index('_atom_site.label_seq_id')] = sernum[i]
     return atom
-
 
 def conv(atom):
     ot1 = list()
@@ -448,7 +475,6 @@ def conv(atom):
         chain.pop()
     return(chain,seq)
 
-
 def atom2seq(id):
     pdbid,pdb = readmmcif(id)
     atom = ext_atom(pdb)
@@ -461,7 +487,7 @@ def atom2seq(id):
 
 
 
-
+#make a histogram of snv
 def diagram2d(exsnv,b):
     import matplotlib.pyplot as plt
     #
@@ -472,6 +498,7 @@ def diagram2d(exsnv,b):
     for c, p in zip(col, patches):
         plt.setp(p, 'facecolor', cm(c))
     return print("diagram made")
+
 
 
 def rgb(minimum, maximum, value):
@@ -490,6 +517,7 @@ def rgb(minimum, maximum, value):
         return [r, g, b]
 
 
+#make a 3d heatmap of snv
 def diagram3d(uniprot_id,res_loc,exsnv,user_pdb_ID):
     from scipy import stats
     from pymol import cmd

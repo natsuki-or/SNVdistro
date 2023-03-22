@@ -7,8 +7,7 @@ database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
             "ClinVar": "/db/ClinVar/clinvar.vcf", \
             "dbSNP": "/db/dbSNP/GCF_000001405.39", \
             "gnomAD": "/db/gnomAD3.1.2/", \
-            "swissprot": "/db/swissprot/uniprot_sprot.dat", \
-            "trembl": "/db/swissprot/uniprot_trembl.dat", \
+            "usersdata": "/db/usersdata.vcf", \
             "GRCh38":  {"1": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa", \
                         "2": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.2.fa", \
                         "3": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.3.fa", \
@@ -38,7 +37,8 @@ database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
 #select the database
 database_to_use = { "ClinVar": False, \
                     "dbSNP": True, \
-                    "gnomAD": True}
+                    "gnomAD": True,
+                    "usersdata": False}
 
 #select what clinical significnace to be included
 clnsig_to_include = {"Benign": True, \

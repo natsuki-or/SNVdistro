@@ -84,9 +84,16 @@ else:
     logger.debug("gnomAD was not searched")
     gnomAD = pd.DataFrame(columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'CLNSIG'])
 
+if database_to_use["usersdata"]:
+    logger.debug("searching usersdata")
+    usersdata = usersdata_snv(C_num, g_start, g_stop)
+else:
+    logger.debug("usersdata was not searched")
+    usersdata = pd.DataFrame(columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'CLNSIG'])
+
 
 #combine the data and remove duplicates
-SNV = pd.concat([ClinVar, dbSNP, gnomAD])
+SNV = pd.concat([ClinVar, dbSNP, gnomAD, usersdata])
 SNV = SNV.drop_duplicates(subset=['POS','ALT'], keep="first")
 SNV['POS'] = SNV['POS'].astype(int)
 SNV = SNV.sort_values(by=['POS'])
