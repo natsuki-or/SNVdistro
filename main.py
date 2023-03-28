@@ -144,7 +144,7 @@ files_file = [f for f in files if os.path.isfile(os.path.join(res_loc, f))]
 ipt = vars(args).items()
 run_time = time.time() - timer_start
 s = sys.argv[0] \
-+ "\nrun time:" + run_time \
++ "\nrun time:" + str(run_time) \
 + "\n\ninputs\n" + '\n'.join(map(str, ipt)) \
 + "\n\noutputs\n" + '\n'.join(files_file) \
 
