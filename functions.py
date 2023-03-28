@@ -235,13 +235,13 @@ def usersdata_snv(C_num, g_start, g_stop):
     fn    = int(g_stop)
     lines_t=[]
     with open(database_loc["usersdata"],"r") as f:
-    lines = [l for l in f if not l.startswith('#')]
-    for line in lines:
-        if (str(line.split()[0]) == t_chr) & (int(line.split()[1]) >= st):
-            if (int(line.split()[1]) > fn):
-                break
-            else:
-                lines_t.append(re.sub('\s+',' ',line))
+        lines = [l for l in f if not l.startswith('#')]
+        for line in lines:
+            if (str(line.split()[0]) == t_chr) & (int(line.split()[1]) >= st):
+                if (int(line.split()[1]) > fn):
+                    break
+                else:
+                    lines_t.append(re.sub('\s+',' ',line))
     v = pd.DataFrame(lines_t)
     v = v[0].str.split(expand=True)
     v.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO']
