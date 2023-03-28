@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+
+import time
+timer_start = time.time()
+
 import os
 import sys
 sys.path.append(os.getcwd())
@@ -9,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 import logging
-import time
+
 
 ###########argparse#############
 parser = argparse.ArgumentParser(description='searches databases for SNV of a gene')
@@ -130,7 +135,6 @@ if args.diagram == "2d":
 
 #heatmap of frequency of variation in each amino acid
 if args.diagram == "3d":
-    #from subprocess import *
     diagram3d(args.uniprot_id, res_loc, exsnv, args.user_pdb_ID)
 
 
@@ -138,7 +142,9 @@ if args.diagram == "3d":
 files = os.listdir(res_loc)
 files_file = [f for f in files if os.path.isfile(os.path.join(res_loc, f))]
 ipt = vars(args).items()
+run_time = time.time() - timer_start
 s = sys.argv[0] \
++ "\nrun time:" + run_time \
 + "\n\ninputs\n" + '\n'.join(map(str, ipt)) \
 + "\n\noutputs\n" + '\n'.join(files_file) \
 
