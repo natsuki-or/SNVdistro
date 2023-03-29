@@ -169,6 +169,7 @@ def dbSNP(C_num, g_start, g_stop):
     v = v[0].str.split(expand=True)
     v.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO']
     v["CLNVC"] = v['INFO'].str.extract('.+[;]VC[=](.*?)[;]')
+    v["CLNSIG"] = v['INFO'].str.extract('(?:.*CLNSIG=.,)(.*?)(?:;)')
     v.drop('INFO', inplace=True, axis=1)
     v["CHROM"] = chr_an[v["CHROM"][0]]
     g_snv = v[v["CLNVC"]=="SNV"]
@@ -176,7 +177,24 @@ def dbSNP(C_num, g_start, g_stop):
     g_snv = g_snv.reset_index(drop=True)
     for ls in range(len(g_snv)):
         g_snv["ALT"][ls]= g_snv["ALT"][ls].split(",")
-    g_snv = g_snv.explode("ALT")
+        g_snv["CLNSIG"][ls]= g_snv["CLNSIG"][ls].split(",")
+    g_snv = g_snv.explode(["ALT","CLNSIG"])
+    clin_sig_dict = {"0":"Uncertain significance",\
+                ".": "Uncertain significance",\
+                "1": "not provided",\
+                "2": "Benign",\
+                "3": "Likely benign",\
+                "4": "Likely pathogenic",\
+                "5": "Pathogenic",\
+                "6": "drug response",\
+                "8": "confers sensitivity",\
+                "9": "risk-factor",\
+                "10": "association",\
+                "11": "protective",\
+                "12": "conflict",\
+                "13": "affects",\
+                "255": "other"}
+    g_snv = g_snv.replace({"CLNSIG": clin_sig_dict})
     return g_snv
 
 
