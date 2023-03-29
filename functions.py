@@ -178,6 +178,7 @@ def dbSNP(C_num, g_start, g_stop):
     g_snv = v[v["CLNVC"]=="SNV"]
     g_snv.drop('CLNVC', inplace=True, axis=1)
     g_snv = g_snv.reset_index(drop=True)
+    g_snv["CLNSIG"] = g_snv["CLNSIG"].astype(str)
     for ls in range(len(g_snv)):
         g_snv["ALT"][ls]= g_snv["ALT"][ls].split(",")
         g_snv["CLNSIG"][ls]= g_snv["CLNSIG"][ls].split(",")
