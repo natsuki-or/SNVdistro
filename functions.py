@@ -32,6 +32,9 @@ def Up_CCDS_ID(uniprot_id):
     list_uniprot = getuniprot(uniprot_id)
     ccds_id_loc = [n for n, l in enumerate(list_uniprot) if l.startswith('DR   CCDS;')]
     ccds_id = re.findall('; (.*);', list_uniprot[ccds_id_loc[0]])
+    if not ccds_id:
+        Up_CCDS_ID.logger.error("CCDS ID not found in UniProt")
+        exit()
     return ccds_id
 
 
@@ -336,6 +339,7 @@ def mut_amino(df,g_snv,g_start, g_stop,g):
 
 #blast search on pdb
 def pdbblast(seq):
+    pdbblast.logger = logging.getLogger("SNVdistro.mod.pdbblast\n")
     import requests
     s = {
       "query": {
@@ -357,6 +361,7 @@ def pdbblast(seq):
     for result in r['result_set']:
         ID.append([result][0]['identifier'])
         evalue.append(float([result][0]["score"]))
+    pdbblast.logger.info(pd.DataFrame(list(zip(ID, evalue)),columns =['ID', 'evalue']))
     return ID,evalue
 
 
@@ -537,6 +542,7 @@ def rgb(minimum, maximum, value):
 
 #make a 3d heatmap of snv
 def diagram3d(uniprot_id,res_loc,exsnv,user_pdb_ID):
+    diagram3d.logger = logging.getLogger("SNVdistro.mod.diagram3d")
     from scipy import stats
     from pymol import cmd
     ###############  getuniprot  ###############
@@ -545,6 +551,7 @@ def diagram3d(uniprot_id,res_loc,exsnv,user_pdb_ID):
         if list_uniprot[seq_loc].startswith("SQ"):
             break
     refseq =  re.findall("[A-Z]+", "".join(list_uniprot[seq_loc+1:]).replace(" ", ""))[0]
+    diagram3d.logger.info("\nreference sequence:\n" +refseq)
     ###############  get pdb sequence ID  ###############
     if user_pdb_ID=="":
         ################  pdbblast  ###############
@@ -571,6 +578,8 @@ def diagram3d(uniprot_id,res_loc,exsnv,user_pdb_ID):
     alignments = aligner.align(refseq, pdbseq)
     alignment = alignments[0]
     aliloc = alignment.aligned
+    diagram3d.logger.info("Alignment Score = " + str(alignment.score))
+    diagram3d.logger.info("Alignment\n"+alignment.format())
     #################　make dict to convert　###############
     aliloc_dict = {}
     for i, tup in enumerate(aliloc[0]):

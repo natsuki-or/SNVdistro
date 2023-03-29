@@ -47,7 +47,7 @@ logger.addHandler(stream_handler)
 
 #log file
 file_handler = logging.FileHandler(res_loc+'/'+args.uniprot_id+'.log')
-file_handler.setLevel(logging.INFO)
+file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
