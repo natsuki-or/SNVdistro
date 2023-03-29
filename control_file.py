@@ -35,7 +35,7 @@ database_loc = {"CCDS": "/db/NCBI/CCDS/CCDS.20180614.txt", \
                         "MT": "/db/ensembl/Homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.MT.fa", }}
 
 #select the database
-database_to_use = { "ClinVar": False, \
+database_to_use = { "ClinVar": True, \
                     "dbSNP": True, \
                     "gnomAD": True,
                     "usersdata": False}
