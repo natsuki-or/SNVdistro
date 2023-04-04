@@ -103,14 +103,16 @@ SNV = SNV.drop_duplicates(subset=['POS','ALT'], keep="first")
 SNV['POS'] = SNV['POS'].astype(int)
 SNV = SNV.sort_values(by=['POS'])
 SNV = SNV.reset_index(drop=True)
+SNV_used = SNV
 
-clnsig_included = [key for key, value in clnsig_to_include.items() if value]
-SNV_used = SNV[SNV['CLNSIG'].isin(clnsig_included)]
-if "NaN" in clnsig_included:
-    SNV_used = pd.concat([SNV_used, SNV[SNV['CLNSIG'].isnull()]])
+#clnsig_included = [key for key, value in clnsig_to_include.items() if value]
+#SNV_used = SNV[SNV['CLNSIG'].isin(clnsig_included)]
+#if "NaN" in clnsig_included:
+#    SNV_used = pd.concat([SNV_used, SNV[SNV['CLNSIG'].isnull()]])
+#
+#SNV_used = SNV_used.sort_values(by=['POS'])
+#SNV_used = SNV_used.reset_index(drop=True)
 
-SNV_used = SNV_used.sort_values(by=['POS'])
-SNV_used = SNV_used.reset_index(drop=True)
 
 #workout nuclotide residue number and original/ mutated codon/amino acid
 logger.debug("working out amino acid")

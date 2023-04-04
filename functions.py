@@ -123,6 +123,10 @@ def ClinVar_snv(C_num, g_start, g_stop):
     g_snv = v[v["CLNVC"]=="single_nucleotide_variant"]
     g_snv.drop('CLNVC', inplace=True, axis=1)
     g_snv = g_snv.reset_index(drop=True)
+    clnsig_included = [key for key, value in clnsig_to_include.items() if value]
+    g_snv = g_snv[g_snv['CLNSIG'].isin(clnsig_included)]
+    if "NaN" in clnsig_included:
+        g_snv = pd.concat([g_snv, g_snv[g_snv['CLNSIG'].isnull()]])
     return g_snv
 
 
