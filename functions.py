@@ -132,6 +132,7 @@ def ClinVar_snv(C_num, g_start, g_stop):
 
 # for dbSNP entry with multiple clnsig
 def mean_clnsig(string):
+    import math
     clin_sig_dict = {"0":"Uncertain significance",\
                 ".": "Uncertain significance",\
                 "1": "not provided",\
