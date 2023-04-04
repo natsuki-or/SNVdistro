@@ -222,7 +222,7 @@ def dbSNP(C_num, g_start, g_stop):
     g_snv = g_snv.reset_index(drop=True)
     for mc in range(len(g_snv)):
         g_snv["CLNSIG"][mc] = mean_clnsig(g_snv["CLNSIG"][mc])
-    g_snv.loc[(g_snv['CLNSIG'] >= clnsig_threshold["lower_limit"]) & (g_snv['CLNSIG'] <= clnsig_threshold["upper_limit"])]
+    g_snv = g_snv.loc[(g_snv['CLNSIG'] >= clnsig_threshold["lower_limit"]) & (g_snv['CLNSIG'] <= clnsig_threshold["upper_limit"])]
     return g_snv
 
 
