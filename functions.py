@@ -202,8 +202,8 @@ def dbSNP(C_num, g_start, g_stop):
         g_snv["ALT"][ls]= g_snv["ALT"][ls].split(",")
         g_snv["CLNSIG"][ls]= g_snv["CLNSIG"][ls].split(",")
         if len(g_snv["ALT"][ls]) > len(g_snv["CLNSIG"][ls]):
-        for i in range(len(g_snv["ALT"][ls])-len(g_snv["CLNSIG"][ls])):
-            g_snv["CLNSIG"][ls].append('')
+            for i in range(len(g_snv["ALT"][ls])-len(g_snv["CLNSIG"][ls])):
+                g_snv["CLNSIG"][ls].append('')
     g_snv = g_snv.explode(["ALT","CLNSIG"])
     g_snv = g_snv.reset_index(drop=True)
     for mc in range(len(g_snv)):
