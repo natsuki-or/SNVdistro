@@ -67,8 +67,8 @@ clnsig_scale = {"Uncertain significance": 0,\
                 "other": 0}
 
 #select thresholds or the arbitary unit (inclusive)
-clnsig_threshold = {"upper_limit": 1,\
-                    "lower_limit": 0}
+clnsig_threshold = {"upper_limit": 0,\
+                    "lower_limit": -1}
 
 
 
