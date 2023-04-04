@@ -49,6 +49,30 @@ clnsig_to_include = {"Benign": True, \
                     "NaN" : True, \
                     "Conflicting_interpretations_of_pathogenicity": False,}
 
+
+#set an arbitary unit form -1 to 1 for each clinical significnace label
+clnsig_scale = {"Uncertain significance": 0,\
+                "not provided": 0,\
+                "Benign": -1,\
+                "Likely benign": -0.9,\
+                "Likely pathogenic": 0.9,\
+                "Pathogenic": 1,\
+                "drug response": 0,\
+                "confers sensitivity": 0,\
+                "risk-factor": 0.7,\
+                "association": 0.5,\
+                "protective": -1,\
+                "conflict": 0,\
+                "affects": 0.3,\
+                "other": 0}
+
+#select thresholds or the arbitary unit (inclusive)
+clnsig_threshold = {"upper_limit": 1,\
+                    "lower_limit": 0}
+
+
+
+
 #maybe a way of putting a weight of clinical significance in ClinVar
 #perhaps it might be better to add output file location on here?
 
