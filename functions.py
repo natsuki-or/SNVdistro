@@ -132,6 +132,21 @@ def ClinVar_snv(C_num, g_start, g_stop):
 
 # for dbSNP entry with multiple clnsig
 def mean_clnsig(string):
+    clin_sig_dict = {"0":"Uncertain significance",\
+                ".": "Uncertain significance",\
+                "1": "not provided",\
+                "2": "Benign",\
+                "3": "Likely benign",\
+                "4": "Likely pathogenic",\
+                "5": "Pathogenic",\
+                "6": "drug response",\
+                "8": "confers sensitivity",\
+                "9": "risk-factor",\
+                "10": "association",\
+                "11": "protective",\
+                "12": "conflict",\
+                "13": "affects",\
+                "255": "other"}
     numbers = string.replace('/', '|').split('|')
     numbers = ["0" if x == '' or x == '.' else x for x in numbers]
     num_in_str =[clin_sig_dict.get(item,item)  for item in numbers]
@@ -151,21 +166,6 @@ def dbSNP(C_num, g_start, g_stop):
             "NC_000011.10":11, "NC_000012.12":12, "NC_000013.11":13, "NC_000014.9":14, "NC_000015.10":15, \
             "NC_000016.10":16, "NC_000017.11":17, "NC_000018.10":18, "NC_000019.10":19, "NC_000020.11":20, \
             "NC_000021.9":21, "NC_000022.11":22, "NC_000023.11":"X", "NC_000024.10":"Y", "NC_012920.1":"MT"}
-    clin_sig_dict = {"0":"Uncertain significance",\
-                ".": "Uncertain significance",\
-                "1": "not provided",\
-                "2": "Benign",\
-                "3": "Likely benign",\
-                "4": "Likely pathogenic",\
-                "5": "Pathogenic",\
-                "6": "drug response",\
-                "8": "confers sensitivity",\
-                "9": "risk-factor",\
-                "10": "association",\
-                "11": "protective",\
-                "12": "conflict",\
-                "13": "affects",\
-                "255": "other"}
     chr = []
     nt = []
     pt = []
