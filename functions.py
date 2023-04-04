@@ -130,6 +130,19 @@ def ClinVar_snv(C_num, g_start, g_stop):
     return g_snv
 
 
+# for dbSNP entry with multiple clnsig
+def mean_clnsig(string):
+    numbers = string.replace('/', '|').split('|')
+    numbers = ["0" if x == '' or x == '.' else x for x in numbers]
+    num_in_str =[clin_sig_dict.get(item,item)  for item in numbers]
+    scaled_num =[clnsig_scale.get(item,item)  for item in num_in_str]
+    scaled_mean=sum(scaled_num) / len(scaled_num)
+    if scaled_mean != 0:
+        return round(math.sqrt(abs(scaled_mean))*(scaled_mean/abs(scaled_mean)),3)
+    else:
+        return 0.000
+
+
 #search dbSNP for snv
 def dbSNP(C_num, g_start, g_stop):
     dbSNP.logger = logging.getLogger("SNVdistro.mod.dbSNP")
