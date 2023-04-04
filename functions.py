@@ -134,6 +134,21 @@ def dbSNP(C_num, g_start, g_stop):
             "NC_000011.10":11, "NC_000012.12":12, "NC_000013.11":13, "NC_000014.9":14, "NC_000015.10":15, \
             "NC_000016.10":16, "NC_000017.11":17, "NC_000018.10":18, "NC_000019.10":19, "NC_000020.11":20, \
             "NC_000021.9":21, "NC_000022.11":22, "NC_000023.11":"X", "NC_000024.10":"Y", "NC_012920.1":"MT"}
+    clin_sig_dict = {"0":"Uncertain significance",\
+                ".": "Uncertain significance",\
+                "1": "not provided",\
+                "2": "Benign",\
+                "3": "Likely benign",\
+                "4": "Likely pathogenic",\
+                "5": "Pathogenic",\
+                "6": "drug response",\
+                "8": "confers sensitivity",\
+                "9": "risk-factor",\
+                "10": "association",\
+                "11": "protective",\
+                "12": "conflict",\
+                "13": "affects",\
+                "255": "other"}
     chr = []
     nt = []
     pt = []
@@ -178,27 +193,18 @@ def dbSNP(C_num, g_start, g_stop):
     g_snv = v[v["CLNVC"]=="SNV"]
     g_snv.drop('CLNVC', inplace=True, axis=1)
     g_snv = g_snv.reset_index(drop=True)
-    g_snv["CLNSIG"] = g_snv["CLNSIG"].astype(str)
+    g_snv["CLNSIG"] = g_snv["CLNSIG"].fillna('')
     for ls in range(len(g_snv)):
         g_snv["ALT"][ls]= g_snv["ALT"][ls].split(",")
         g_snv["CLNSIG"][ls]= g_snv["CLNSIG"][ls].split(",")
+        if len(g_snv["ALT"][ls]) > len(g_snv["CLNSIG"][ls]):
+        for i in range(len(g_snv["ALT"][ls])-len(g_snv["CLNSIG"][ls])):
+            g_snv["CLNSIG"][ls].append('')
     g_snv = g_snv.explode(["ALT","CLNSIG"])
-    clin_sig_dict = {"0":"Uncertain significance",\
-                ".": "Uncertain significance",\
-                "1": "not provided",\
-                "2": "Benign",\
-                "3": "Likely benign",\
-                "4": "Likely pathogenic",\
-                "5": "Pathogenic",\
-                "6": "drug response",\
-                "8": "confers sensitivity",\
-                "9": "risk-factor",\
-                "10": "association",\
-                "11": "protective",\
-                "12": "conflict",\
-                "13": "affects",\
-                "255": "other"}
-    g_snv = g_snv.replace({"CLNSIG": clin_sig_dict})
+    g_snv = g_snv.reset_index(drop=True)
+    for mc in range(len(g_snv)):
+        g_snv["CLNSIG"][mc] = mean_clnsig(g_snv["CLNSIG"][mc])
+    g_snv.loc[(g_snv['CLNSIG'] >= clnsig_threshold["lower_limit"]) & (g_snv['CLNSIG'] <= clnsig_threshold["upper_limit"])]
     return g_snv
 
 
@@ -579,8 +585,17 @@ def diagram3d(uniprot_id,res_loc,exsnv,user_pdb_ID):
     alignments = aligner.align(refseq, pdbseq)
     alignment = alignments[0]
     aliloc = alignment.aligned
+    ################# alignment log #################
     diagram3d.logger.info("Alignment Score = " + str(alignment.score))
-    diagram3d.logger.info("Alignment\n"+alignment.format())
+    ali_for = alignment.format().split('\n')
+    split_num = 60
+    ali_ref = [ali_for[0][i:i+split_num] for i in range(0, len(ali_for[0]), split_num)]
+    ali_ali = [ali_for[1][i:i+split_num] for i in range(0, len(ali_for[1]), split_num)]
+    ali_tar = [ali_for[2][i:i+split_num] for i in range(0, len(ali_for[2]), split_num)]
+    log_ali = ""
+    for i in range(len(ali_ref)):
+        log_ali = log_ali + str(ali_ref[i])+"\n"+str(ali_ali[i])+"\n"+str(ali_tar[i])+"\n\n"
+    diagram3d.logger.info("Alignment\n"+log_ali)
     #################　make dict to convert　###############
     aliloc_dict = {}
     for i, tup in enumerate(aliloc[0]):
