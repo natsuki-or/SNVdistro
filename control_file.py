@@ -77,7 +77,7 @@ clnsig_func = {"mean": False,\
 
 #select thresholds for allele frequency for gnomAD(inclusive)
 allele_freq_threshold = {"upper_limit": 1,\
-                        "lower_limit": 0.00001}
+                        "lower_limit": 0.01}
 
 
 #location of hash table to be stored  <= is this necessary? I could preset the program
