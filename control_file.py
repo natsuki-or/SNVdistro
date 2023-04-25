@@ -40,7 +40,7 @@ database_to_use = { "ClinVar": True, \
                     "gnomAD": True,
                     "usersdata": False}
 
-#select what clinical significnace to be included
+#select what clinical significnace to be included from ClinVar
 clnsig_to_include = {"Benign": True, \
                     "Likely_benign": True, \
                     "Uncertain_significance": True, \
@@ -50,7 +50,7 @@ clnsig_to_include = {"Benign": True, \
                     "Conflicting_interpretations_of_pathogenicity": False,}
 
 
-#set an arbitary unit form -1 to 1 for each clinical significnace label
+#set an arbitary unit form -1 to 1 for each clinical significnace labelling on dbSNP
 clnsig_scale = {"Uncertain significance": 0,\
                 "not provided": 0,\
                 "Benign": -1,\
@@ -66,15 +66,18 @@ clnsig_scale = {"Uncertain significance": 0,\
                 "affects": 0.3,\
                 "other": 0}
 
-#select thresholds or the arbitary unit (inclusive)
+#select thresholds for the arbitary unit for dbSNP(inclusive)
 clnsig_threshold = {"upper_limit": 0,\
                     "lower_limit": -1}
 
+clnsig_func = {"mean": False,\
+                "max": True,\
+                "min": False}
 
 
-
-#maybe a way of putting a weight of clinical significance in ClinVar
-#perhaps it might be better to add output file location on here?
+#select thresholds for allele frequency for gnomAD(inclusive)
+allele_freq_threshold = {"upper_limit": 1,\
+                        "lower_limit": 0.00001}
 
 
 #location of hash table to be stored  <= is this necessary? I could preset the program

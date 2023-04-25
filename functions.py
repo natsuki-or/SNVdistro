@@ -131,6 +131,7 @@ def ClinVar_snv(C_num, g_start, g_stop):
 
 
 # for dbSNP entry with multiple clnsig
+# take mean and take square root
 def mean_clnsig(string):
     import math
     clin_sig_dict = {"0":"Uncertain significance",\
@@ -157,6 +158,56 @@ def mean_clnsig(string):
         return round(math.sqrt(abs(scaled_mean))*(scaled_mean/abs(scaled_mean)),3)
     else:
         return 0.000
+
+
+#max
+def max_clnsig(string):
+    import math
+    clin_sig_dict = {"0":"Uncertain significance",\
+                ".": "Uncertain significance",\
+                "1": "not provided",\
+                "2": "Benign",\
+                "3": "Likely benign",\
+                "4": "Likely pathogenic",\
+                "5": "Pathogenic",\
+                "6": "drug response",\
+                "8": "confers sensitivity",\
+                "9": "risk-factor",\
+                "10": "association",\
+                "11": "protective",\
+                "12": "conflict",\
+                "13": "affects",\
+                "255": "other"}
+    numbers = string.replace('/', '|').split('|')
+    numbers = ["0" if x == '' or x == '.' else x for x in numbers]
+    num_in_str =[clin_sig_dict.get(item,item)  for item in numbers]
+    scaled_num =[clnsig_scale.get(item,item)  for item in num_in_str]
+    return max(scaled_num)
+
+
+#min
+def min_clnsig(string):
+    import math
+    clin_sig_dict = {"0":"Uncertain significance",\
+                ".": "Uncertain significance",\
+                "1": "not provided",\
+                "2": "Benign",\
+                "3": "Likely benign",\
+                "4": "Likely pathogenic",\
+                "5": "Pathogenic",\
+                "6": "drug response",\
+                "8": "confers sensitivity",\
+                "9": "risk-factor",\
+                "10": "association",\
+                "11": "protective",\
+                "12": "conflict",\
+                "13": "affects",\
+                "255": "other"}
+    numbers = string.replace('/', '|').split('|')
+    numbers = ["0" if x == '' or x == '.' else x for x in numbers]
+    num_in_str =[clin_sig_dict.get(item,item)  for item in numbers]
+    scaled_num =[clnsig_scale.get(item,item)  for item in num_in_str]
+    return min(scaled_num)
 
 
 #search dbSNP for snv
@@ -220,8 +271,15 @@ def dbSNP(C_num, g_start, g_stop):
                 g_snv["CLNSIG"][ls].append('')
     g_snv = g_snv.explode(["ALT","CLNSIG"])
     g_snv = g_snv.reset_index(drop=True)
-    for mc in range(len(g_snv)):
-        g_snv["CLNSIG"][mc] = mean_clnsig(g_snv["CLNSIG"][mc])
+    if clnsig_func["max"]:
+        for mc in range(len(g_snv)):
+            g_snv["CLNSIG"][mc] = max_clnsig(g_snv["CLNSIG"][mc])
+    elif clnsig_func["min"]:
+        for mc in range(len(g_snv)):
+            g_snv["CLNSIG"][mc] = min_clnsig(g_snv["CLNSIG"][mc])
+    else:
+        for mc in range(len(g_snv)):
+            g_snv["CLNSIG"][mc] = mean_clnsig(g_snv["CLNSIG"][mc])
     g_snv = g_snv.loc[(g_snv['CLNSIG'] >= clnsig_threshold["lower_limit"]) & (g_snv['CLNSIG'] <= clnsig_threshold["upper_limit"])]
     return g_snv
 
@@ -260,6 +318,7 @@ def gnomAD_snv(C_num, g_start, g_stop):
         return g_snv
     v = v[0].str.split(expand=True)
     v.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO']
+    v["AF"] = v['INFO'].str.extract('.+[;]AF[=](.*?)[;]')
     v.drop('INFO', inplace=True, axis=1)
     v["CLNVC"] = ""
     for j in range(len(v)):
@@ -267,7 +326,10 @@ def gnomAD_snv(C_num, g_start, g_stop):
             v["CLNVC"][j] = "SNV"
     #extract single nucleotide variants
     g_snv = v[v["CLNVC"]=="SNV"]
+    g_snv["AF"] = g_snv["AF"].astype(float)
+    g_snv = g_snv.loc[(g_snv['AF'] >= allele_freq_threshold["lower_limit"]) & (g_snv['AF'] <= allele_freq_threshold["upper_limit"])]
     g_snv.drop('CLNVC', inplace=True, axis=1)
+    g_snv.drop('AF', inplace=True, axis=1)
     g_snv = g_snv.reset_index(drop=True)
     g_snv["CHROM"] = C_num
     return g_snv
