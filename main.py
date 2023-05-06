@@ -53,9 +53,10 @@ logger.addHandler(file_handler)
 
 ###############################
 
-if (len(args.user_pdb_ID)>0) & (len(args.user_pdb_ID) != 5):
-    logger.error("Please include the chain in your PDB ID(e.g. 2L7B chain A => 2L7BA)")
-    exit()
+if args.diagram == "3d":
+    if (len(args.user_pdb_ID)>0) & (len(args.user_pdb_ID) != 5):
+        logger.error("Please include the chain in your PDB ID(e.g. 2L7B chain A => 2L7BA)")
+        exit()
 
 #find CCDS ID on uniprot
 CCDS_ID = Up_CCDS_ID(args.uniprot_id)
