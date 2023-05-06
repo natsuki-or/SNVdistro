@@ -41,12 +41,12 @@ database_to_use = { "ClinVar": True, \
                     "usersdata": False}
 
 #select what clinical significnace to be included from ClinVar
-clnsig_to_include = {"Benign": True, \
-                    "Likely_benign": True, \
-                    "Uncertain_significance": True, \
-                    "Likely_pathogenic": False, \
-                    "Pathogenic": False, \
-                    "NaN" : True, \
+clnsig_to_include = {"Benign": False, \
+                    "Likely_benign": False, \
+                    "Uncertain_significance": False, \
+                    "Likely_pathogenic": True, \
+                    "Pathogenic": True, \
+                    "NaN" : False, \
                     "Conflicting_interpretations_of_pathogenicity": False,}
 
 
@@ -67,17 +67,17 @@ clnsig_scale = {"Uncertain significance": 0,\
                 "other": 0}
 
 #select thresholds for the arbitary unit for dbSNP(inclusive)
-clnsig_threshold = {"upper_limit": 0,\
-                    "lower_limit": -1}
+clnsig_threshold = {"upper_limit": 1,\
+                    "lower_limit": 0}
 
-clnsig_func = {"mean": False,\
-                "max": True,\
+clnsig_func = {"mean": True,\
+                "max": False,\
                 "min": False}
 
 
 #select thresholds for allele frequency for gnomAD(inclusive)
-allele_freq_threshold = {"upper_limit": 1,\
-                        "lower_limit": 0.01}
+allele_freq_threshold = {"upper_limit": 0.01,\
+                        "lower_limit": 0.00}
 
 
 #location of hash table to be stored  <= is this necessary? I could preset the program
