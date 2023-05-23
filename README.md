@@ -21,7 +21,5 @@ To run the program use the following syntax
 - The first argument takes the UniProt ID(e.g. BRAF_HUMAN) or accession ID(e.g.P15056). 
 - The second argument takes the location user wishes to store the outputs. 
 - The third argument takes the type of diagram the user wishes to create. 
-   - Whilst we believe the main strength of the program lies in 3D visualisation, 
-   - the program can also be used to visualise the frequency and distribution of SNVs as a histogram. 
-   - Selecting “2d” outputs a histogram and “3d” outputs a pymol heatmap. 
+   - Whilst we believe the main strength of the program lies in 3D visualisation, the program can also be used to visualise the frequency and distribution of SNVs as a histogram. Selecting “2d” outputs a histogram and “3d” outputs a pymol heatmap. 
 - The fourth argument is optional. If user select 3d, they can choose a structural file to map the variations onto by entering the PDB ID of choice.
