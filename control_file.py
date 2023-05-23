@@ -92,6 +92,8 @@ hashtb_loc = {"ClinVar": "/db/ClinVar/ClinVar.hashtb", \
 
 
 #This parameter changes the amount of incliments when forming hash table of the database (bin/ jump window).
+#Should the user wish to change these incliments, they will need to run hashtb.py inorder for the hash table
+#to reflect the change they've made.
 #e.g. if set to 100,000, it will store the bite location of mutations at every 100,000 residues
 hashtb_DIV = {"ClinVar": 100000, \
             "dbSNP": 100000, \
