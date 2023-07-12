@@ -6,7 +6,7 @@ PyMOL.
 
 To set up
 1. Install all files from this repository
-2. Download prerequisites.
+2. Download prerequisites.(Table 1)
 3. Open control_file.py and edit “database_loc” so that the location of databases in the user's environment is reflected.
 4. Set “hashtb_loc” to wherever the user wishes to store the hash table for each database.
 5. Either:
@@ -14,6 +14,9 @@ To set up
       - Create hash tables for databases by running “database_hashtb.py” under hashtb. This may take a while.
 6. Choose the database to search SNVs and filter to apply on control_file.py; the program is ready to run.
 
+
+Table 1: Prerequisites need to be installed for the program to run.
+This program runs on Python 3.6+ with the prerequisites. The databases need to be stored locally and their location has to be recorded in control.py under “database_loc.”
 |Name|URL|Reference|
 |----|---|-----------------|
 |The Consensus Coding Sequence (CCDS)|https://www.ncbi.nlm.nih.gov/projects/CCDS/CcdsBrowse.cgi|(1)|
