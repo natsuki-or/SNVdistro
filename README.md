@@ -1,18 +1,18 @@
 # SNVdistro
-This program visualises frequency, distribution and clinical significance of single nucleotide variations(SNV) of a gene of interest on 
-a three-dimensional structure. It searches ClinVar, dbSNP and gnomAD for SNVs which are filtered according to users interest and mapped
-to a structural file retreived from PDB. The resulting heatmap of SNV frequency, distribution and clinical significance can be viewed on
+This program visualises the frequency, distribution and clinical significance of single nucleotide variations(SNV) of a gene of interest on 
+a three-dimensional structure. It searches ClinVar, dbSNP and gnomAD for SNVs which are filtered according to users' interests and mapped
+to a structural file retrieved from PDB. The resulting heatmap of SNV frequency, distribution and clinical significance can be viewed on
 PyMOL. 
 
 To set up
 1. Install all files from this repository
-2. Download prerequisites (Table 1).
+2. Download prerequisites.
 3. Open control_file.py and edit “database_loc” so that the location of databases in the user's environment is reflected.
 4. Set “hashtb_loc” to wherever the user wishes to store the hash table for each database.
 5. Either:
       - Move the hash table provided under hashtb to the location specified in the previous step.
       - Create hash tables for databases by running “database_hashtb.py” under hashtb. This may take a while.
-6. Choose the database to search SNVs and filter to apply on control_file.py and the program is ready to run.
+6. Choose the database to search SNVs and filter to apply on control_file.py; the program is ready to run.
 
 
 To run the program use the following syntax
